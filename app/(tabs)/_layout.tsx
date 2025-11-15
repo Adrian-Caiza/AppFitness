@@ -1,35 +1,54 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import { useAuth } from '../../src/presentation/context/AuthContext';
+import { FontAwesome } from '@expo/vector-icons'
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+export default function TabsLayout() {
+  const { user } = useAuth();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // Si el usuario aún no se ha cargado, no mostramos nada
+  if (!user) {
+    return null;
+  }
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
+    <Tabs>
+      {/* Tabs comunes para ambos roles */}
+      <Tabs.Screen name="index" options={{ title: 'Inicio' }} />
+      <Tabs.Screen name="chat" options={{ title: 'Chat' }} />
+
+      {/* Tab exclusiva para Entrenadores */}
+      {user.role === 'trainer' && (
+        <Tabs.Screen
+          name="crear-rutina"
+          options={{ title: 'Crear Rutina' }}
+        />
+      )}
+
+      {/* ¡NUEVA TAB! */}
+      {user.role === 'trainer' && (
+        <Tabs.Screen
+          name="ejercicios" 
+          options={{ title: 'Ejercicios' }}
+        />
+      )}
+
+      {user.role === 'trainer' && (
+        <Tabs.Screen
+          name="clients" 
+          options={{ title: 'Clientes' }}
+        />
+      )}
+
+      {/* Tab exclusiva para Usuarios */}
+      {user.role === 'user' && (
+        <Tabs.Screen
+          name="mi-plan"
+          options={{ title: 'Mi Plan' }}
+        />
+      )}
+      
+      {/* Perfil (para hacer logout) */}
+      <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
     </Tabs>
   );
 }
