@@ -21,7 +21,19 @@ function RootLayoutNav() {
     }, [session, isLoading]);
 
     // `Slot` renderizará la ruta actual (login o tabs)
-    return <Slot />;
+    return (
+        <Stack>
+            {/* El grupo (auth) no tendrá header, usa su propio layout */}
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            
+            {/* El grupo (tabs) no tendrá header, usa su propio layout */}
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            
+            {/* Definimos las pantallas que se pueden "empujar" encima */}
+            <Stack.Screen name="rutina/[id]" />
+            <Stack.Screen name="chat/[id]" />
+        </Stack>
+    );
 }
 
 export default function RootLayout() {

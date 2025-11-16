@@ -5,24 +5,23 @@ import { useLocalSearchParams, Stack } from 'expo-router';
 import { useRutinaDetalle } from '../../src/presentation/hooks/useRutinaDetalle';
 import { EjercicioEnRutina } from '../../src/domain/types/types';
 import { useState } from 'react';
-import { Picker } from '@react-native-picker/picker'; // npx expo install @react-native-picker/picker
+import { Picker } from '@react-native-picker/picker';
 
 export default function RutinaDetalleScreen() {
-    const { id } = useLocalSearchParams(); // Obtiene el [id] de la URL
+    const { id } = useLocalSearchParams();
     const rutinaId = Array.isArray(id) ? id[0] : id;
 
     if (!rutinaId) return <Text>ID de rutina no encontrado.</Text>;
 
-    const { rutina, ejerciciosDisponibles, isLoading, refresh, addEjercicio } = useRutinaDetalle(rutinaId);
+    const { rutina, ejerciciosDisponibles, isLoading, refresh, addEjercicio } =
+        useRutinaDetalle(rutinaId);
 
-    // Estado para el modal/formulario
     const [modalVisible, setModalVisible] = useState(false);
     const [ejercicioId, setEjercicioId] = useState<string | null>(null);
     const [sets, setSets] = useState('');
     const [reps, setReps] = useState('');
     const [rest, setRest] = useState('');
 
-    // Maneja el guardado del formulario
     const handleAddEjercicio = async () => {
         if (!ejercicioId) {
             Alert.alert('Error', 'Debes seleccionar un ejercicio.');
@@ -36,22 +35,21 @@ export default function RutinaDetalleScreen() {
                 reps: reps || null,
                 rest_time_seconds: rest ? parseInt(rest) : null,
             });
-            // Limpiar y cerrar modal
+
             setModalVisible(false);
             setEjercicioId(null);
             setSets('');
             setReps('');
             setRest('');
-        } catch (e) {
-            // El hook ya muestra la alerta
-        }
+        } catch (e) {}
     };
 
-    // Renderiza cada ejercicio *dentro* de la rutina
     const renderEjercicioEnRutina = ({ item }: { item: EjercicioEnRutina }) => (
         <View style={styles.ejercicioContainer}>
             <Text style={styles.ejercicioTitle}>{item.ejercicios.name}</Text>
-            <Text>Sets: {item.sets || 'N/A'} | Reps: {item.reps || 'N/A'} | Descanso: {item.rest_time_seconds || 'N/A'}s</Text>
+            <Text>
+                Sets: {item.sets || 'N/A'} | Reps: {item.reps || 'N/A'} | Descanso: {item.rest_time_seconds || 'N/A'}s
+            </Text>
         </View>
     );
 
@@ -64,56 +62,78 @@ export default function RutinaDetalleScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <>
+            {/* ✅ CORREGIDO: Stack.Screen debe ir arriba del layout */}
+            <Stack.Screen
+                options={{ 
+                    title: rutina.name,
+                    headerBackTitle: 'Rutinas' 
+                }}
+            />
 
-            {/* ¡ESTA LÍNEA CORRIGE EL TÍTULO! */}
-            <Stack.Screen options={{ title: rutina.name, headerBackTitle: 'Rutinas' }} />
+            <View style={styles.container}>
+                <Button title="Añadir Ejercicio" onPress={() => setModalVisible(true)} />
 
-            {/* ¡ESTE ES EL BOTÓN QUE TE FALTA! */}
-            <Button title="Añadir Ejercicio" onPress={() => setModalVisible(true)} />
-
-            {/* Lista de ejercicios en la rutina */}
-            <View style={{ flex: 1 }}>
                 <FlatList
-                data={rutina.rutina_ejercicios}
-                renderItem={renderEjercicioEnRutina}
-                keyExtractor={(item) => item.id}
-                onRefresh={refresh}
-                refreshing={isLoading}
-                ListHeaderComponent={<Text style={styles.title}>{rutina.description}</Text>}
-                ListEmptyComponent={<Text style={styles.emptyText}>Esta rutina aún no tiene ejercicios.</Text>}
+                    data={rutina.rutina_ejercicios}
+                    renderItem={renderEjercicioEnRutina}
+                    keyExtractor={(item) => item.id}
+                    onRefresh={refresh}
+                    refreshing={isLoading}
+                    ListHeaderComponent={<Text style={styles.title}>{rutina.description}</Text>}
+                    ListEmptyComponent={<Text style={styles.emptyText}>Esta rutina aún no tiene ejercicios.</Text>}
                 />
+
+                {/* Modal */}
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalTitle}>Añadir Ejercicio</Text>
+
+                        <Picker
+                            selectedValue={ejercicioId}
+                            onValueChange={(itemValue) => setEjercicioId(itemValue)}
+                            style={styles.input}
+                        >
+                            <Picker.Item label="Selecciona un ejercicio..." value={null} />
+                            {ejerciciosDisponibles.map((ej) => (
+                                <Picker.Item label={ej.name} value={ej.id} key={ej.id} />
+                            ))}
+                        </Picker>
+
+                        <TextInput
+                            placeholder="Sets (ej: 4)"
+                            value={sets}
+                            onChangeText={setSets}
+                            style={styles.input}
+                            keyboardType="numeric"
+                        />
+
+                        <TextInput
+                            placeholder="Reps (ej: 10-12)"
+                            value={reps}
+                            onChangeText={setReps}
+                            style={styles.input}
+                        />
+
+                        <TextInput
+                            placeholder="Descanso (segundos, ej: 60)"
+                            value={rest}
+                            onChangeText={setRest}
+                            style={styles.input}
+                            keyboardType="numeric"
+                        />
+
+                        <Button title="Guardar" onPress={handleAddEjercicio} disabled={isLoading} />
+                        <Button title="Cancelar" onPress={() => setModalVisible(false)} color="gray" />
+                    </View>
+                </Modal>
             </View>
-
-            {/* Modal para añadir ejercicio */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Añadir Ejercicio</Text>
-
-                    <Picker
-                        selectedValue={ejercicioId}
-                        onValueChange={(itemValue) => setEjercicioId(itemValue)}
-                    >
-                        <Picker.Item label="Selecciona un ejercicio..." value={null} />
-                        {ejerciciosDisponibles.map((ej) => (
-                            <Picker.Item label={ej.name} value={ej.id} key={ej.id} />
-                        ))}
-                    </Picker>
-
-                    <TextInput placeholder="Sets (ej: 4)" value={sets} onChangeText={setSets} style={styles.input} keyboardType="numeric" />
-                    <TextInput placeholder="Reps (ej: 10-12)" value={reps} onChangeText={setReps} style={styles.input} />
-                    <TextInput placeholder="Descanso (segundos, ej: 60)" value={rest} onChangeText={setRest} style={styles.input} keyboardType="numeric" />
-
-                    <Button title="Guardar" onPress={handleAddEjercicio} disabled={isLoading} />
-                    <Button title="Cancelar" onPress={() => setModalVisible(false)} color="gray" />
-                </View>
-            </Modal>
-        </View>
+        </>
     );
 }
 
@@ -124,7 +144,6 @@ const styles = StyleSheet.create({
     emptyText: { textAlign: 'center', marginTop: 20, color: '#999' },
     ejercicioContainer: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
     ejercicioTitle: { fontSize: 16, fontWeight: 'bold' },
-    // Estilos del Modal
     modalView: {
         margin: 20,
         backgroundColor: 'white',

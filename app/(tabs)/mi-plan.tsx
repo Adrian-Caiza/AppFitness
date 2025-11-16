@@ -121,7 +121,7 @@ export default function MiPlanScreen() {
         return <ActivityIndicator style={styles.centered} size="large" />;
     }
 
-    if (!plan) {
+    if (!plan || !plan.rutinas) {
         return (
             <View style={styles.centered}>
                 <Text>No tienes ningún plan asignado.</Text>

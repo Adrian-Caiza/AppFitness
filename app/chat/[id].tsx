@@ -1,4 +1,12 @@
-import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+// app/chat/[id].tsx
+
+import { 
+    View, Text, TextInput, Button, FlatList, 
+    StyleSheet, ActivityIndicator, 
+    KeyboardAvoidingView, Platform 
+} from 'react-native';
+// ¡¡CORRECCIÓN 1: Importar desde 'react-native-safe-area-context'!!
+import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useChatSession } from '../../src/presentation/hooks/useChatSession';
 import { useAuth } from '../../src/presentation/context/AuthContext';
@@ -6,15 +14,14 @@ import { useState } from 'react';
 import { ChatMessage } from '../../src/domain/entities/ChatMessage';
 
 export default function ChatSessionScreen() {
-    const { id: receiverId } = useLocalSearchParams(); // ID de la persona con la que chateamos
+    const { id: receiverId } = useLocalSearchParams();
     const { user: me } = useAuth();
     const { messages, isLoading, sendMessage } = useChatSession(receiverId as string);
-
     const [content, setContent] = useState('');
 
     const handleSend = () => {
         sendMessage(content);
-        setContent(''); // Limpiar input
+        setContent('');
     };
 
     const renderMessage = ({ item }: { item: ChatMessage }) => {
@@ -27,37 +34,55 @@ export default function ChatSessionScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            {/* Opcional: Cargar el nombre del receptor y ponerlo en el título */}
-            <Stack.Screen options={{ title: 'Chat' }} />
-
-            {isLoading && <ActivityIndicator />}
-
-            <FlatList
-                data={messages}
-                renderItem={renderMessage}
-                keyExtractor={(item) => item.id.toString()}
-                inverted // ¡Importante para chat! Muestra mensajes de abajo hacia arriba
-                style={styles.messageList}
-            />
-
-            <View style={styles.inputContainer}>
-                <TextInput
-                    value={content}
-                    onChangeText={setContent}
-                    placeholder="Escribe un mensaje..."
-                    style={styles.input}
-                    multiline
+        // ¡¡CORRECCIÓN 2: Ahora esta SafeAreaView es la correcta!!
+        <SafeAreaView style={styles.safeArea}> 
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.container}
+                // ¡¡CORRECCIÓN 3: Un pequeño ajuste para que el teclado funcione mejor!!
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 90} 
+            >
+                <Stack.Screen options={{ title: 'Chat' }} /> 
+                
+                {isLoading && <ActivityIndicator />}
+                
+                <FlatList
+                    data={messages}
+                    renderItem={renderMessage}
+                    keyExtractor={(item) => item.id.toString()}
+                    inverted 
+                    style={styles.messageList}
                 />
-                <Button title="Enviar" onPress={handleSend} />
-            </View>
-        </View>
+                
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        value={content}
+                        onChangeText={setContent}
+                        placeholder="Escribe un mensaje..."
+                        style={styles.input}
+                        multiline
+                    />
+                    <Button title="Enviar" onPress={handleSend} />
+                </View>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f0f0f0' },
-    messageList: { flex: 1, padding: 10 },
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#f0f0f0', 
+    },
+    container: { 
+        flex: 1, 
+        backgroundColor: '#f0f0f0' 
+    },
+    messageList: { 
+        flex: 1, 
+        padding: 10 
+    },
+    // ... (el resto de tus estilos están perfectos) ...
     inputContainer: {
         flexDirection: 'row',
         padding: 10,
@@ -75,7 +100,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     myMessage: {
-        backgroundColor: '#d1f0d1', // Verde claro
+        backgroundColor: '#d1f0d1',
         padding: 10,
         borderRadius: 10,
         alignSelf: 'flex-end',
@@ -83,7 +108,7 @@ const styles = StyleSheet.create({
         maxWidth: '80%',
     },
     otherMessage: {
-        backgroundColor: 'blue', // Azul
+        backgroundColor: 'blue',
         padding: 10,
         borderRadius: 10,
         alignSelf: 'flex-start',

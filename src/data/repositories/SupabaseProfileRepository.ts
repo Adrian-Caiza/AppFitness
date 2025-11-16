@@ -8,7 +8,7 @@ export class SupabaseProfileRepository implements ProfileRepository {
         // Tu RLS "Allow users to see all profiles" permite esta consulta
         const { data, error } = await supabase
             .from('profiles')
-            .select('id, full_name, role, email:dummy_email_field') // email no está en tu 'profiles'
+            .select('id, full_name, role') // email no está en tu 'profiles'
             .eq('role', 'user'); // Traer solo a los clientes
 
         if (error) {

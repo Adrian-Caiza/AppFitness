@@ -3,7 +3,8 @@ import { useAuth } from '../../src/presentation/context/AuthContext';
 import { useClients } from '../../src/presentation/hooks/useClients'; 
 import { useMyTrainer } from '../../src/presentation/hooks/useMyTrainer';
 import { User } from '../../src/domain/entities/User';
-import { Link, Redirect } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 
 // Vista para el Entrenador (Lista de Clientes)
 const TrainerChatList = () => {
@@ -37,6 +38,13 @@ const TrainerChatList = () => {
 // Vista para el Usuario (Redirige a su Entrenador)
 const UserChatRedirect = () => {
     const { trainer, isLoading } = useMyTrainer();
+    const router = useRouter();
+
+    useEffect(() => { // ¡CORREGIDO!
+        if (trainer) {
+            router.push(`/chat/${trainer.id}`); 
+        }
+    }, [trainer]);
 
     if (isLoading) {
         return <ActivityIndicator style={styles.centered} />;
@@ -51,7 +59,7 @@ const UserChatRedirect = () => {
     }
 
     // ¡Redirige automáticamente a la sala de chat!
-    return <Redirect href={`/chat/${trainer.id}`} />;
+    return <ActivityIndicator style={styles.centered} />;
 };
 
 // Componente principal que decide qué mostrar
