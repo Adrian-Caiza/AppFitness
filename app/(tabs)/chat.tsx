@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../src/presentation/context/AuthContext';
-import { useClients } from '../../src/presentation/hooks/useClients'; 
-import { useMyTrainer } from '../../src/presentation/hooks/useMyTrainer';
+import { useClients } from '../../src/presentation/hooks/useClients';
+import { useMyTrainers } from '../../src/presentation/hooks/useMyTrainers';
 import { User } from '../../src/domain/entities/User';
 import { Link, useRouter } from 'expo-router';
 import { useEffect } from 'react';
@@ -36,30 +36,34 @@ const TrainerChatList = () => {
 };
 
 // Vista para el Usuario (Redirige a su Entrenador)
-const UserChatRedirect = () => {
-    const { trainer, isLoading } = useMyTrainer();
+const UserTrainerList = () => {
+    const { trainers, isLoading } = useMyTrainers();
     const router = useRouter();
 
-    useEffect(() => { // ¡CORREGIDO!
-        if (trainer) {
-            router.push(`/chat/${trainer.id}`); 
-        }
-    }, [trainer]);
+    const renderTrainer = ({ item }: { item: User }) => (
+        <Link href={`/chat/${item.id}`} asChild>
+            <Pressable style={styles.itemContainer}>
+                <Text style={styles.itemTitle}>{item.full_name}</Text>
+                <Text>{'->'}</Text>
+            </Pressable>
+        </Link>
+    );
+
+
 
     if (isLoading) {
         return <ActivityIndicator style={styles.centered} />;
     }
 
-    if (!trainer) {
-        return (
-            <View style={styles.centered}>
-                <Text style={styles.emptyText}>No tienes un entrenador asignado.</Text>
-            </View>
-        );
-    }
+    return (
+        <FlatList
+            data={trainers}
+            renderItem={renderTrainer}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={<Text style={styles.emptyText}>No tienes entrenadores asignados.</Text>}
+        />
+    );
 
-    // ¡Redirige automáticamente a la sala de chat!
-    return <ActivityIndicator style={styles.centered} />;
 };
 
 // Componente principal que decide qué mostrar
@@ -73,7 +77,7 @@ export default function ChatScreenRouter() {
     }
 
     if (user.role === 'user') {
-        return <UserChatRedirect />;
+        return <UserTrainerList />;
     }
 
     return <Text>Rol no reconocido</Text>;

@@ -29,33 +29,43 @@ export class SupabaseProfileRepository implements ProfileRepository {
         })) as User[];
     }
 
-    async getMyTrainer(userId: string): Promise<User | null> {
+    async getMyTrainers(userId: string): Promise<User[]> {
         // 1. Busca en 'planes_entrenamiento' quién es el entrenador de este usuario
         const { data: planData, error: planError } = await supabase
             .from('planes_entrenamiento')
             .select('trainer_id')
             .eq('user_id', userId)
-            .limit(1) // Asumimos que solo tiene un entrenador
-            .single();
+
 
         if (planError || !planData) {
             console.log('User has no trainer assigned.');
-            return null;
+            return [];
         }
 
-        // 2. Busca el perfil de ese entrenador
+        // 2. Obtiene solo los IDs únicos (un entrenador puede haber asignado varios planes)
+        const trainerIds = [...new Set(planData.map(plan => plan.trainer_id))];
+
+        if (trainerIds.length === 0) {
+        return [];
+        }
+
+        // 3. Busca el perfil de ese entrenador
         const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('id, full_name, role') // Omitimos email por ahora
-            .eq('id', planData.trainer_id)
-            .single();
+            .in('id', trainerIds);
 
         if (profileError) {
             console.error('Error fetching trainer profile:', profileError.message);
-            return null;
+            return [];
         }
 
-        // Asignación con email vacío (ya que 'profiles' no lo tiene)
-        return { ...profileData, email: '' } as User;
+        // 4. Mapea a la entidad User
+        return profileData.map(p => ({
+        id: p.id,
+        full_name: p.full_name,
+        role: p.role,
+        email: '' 
+    })) as User[];
     }
 }

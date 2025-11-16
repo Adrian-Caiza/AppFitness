@@ -4,7 +4,7 @@ export interface ProfileRepository {
     // Obtiene todos los perfiles que tienen el rol de 'user'
     getClientList(): Promise<User[]>;
 
-    getMyTrainer(userId: string): Promise<User | null>;
+    getMyTrainers(userId: string): Promise<User[]>;
 }
 
 

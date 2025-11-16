@@ -7,16 +7,16 @@ import { useAuth } from '../context/AuthContext';
 // Instanciar repositorio
 const profileRepository: ProfileRepository = new SupabaseProfileRepository();
 
-export const useMyTrainer = () => {
+export const useMyTrainers = () => {
     const { user } = useAuth();
-    const [trainer, setTrainer] = useState<User | null>(null);
+    const [trainers, setTrainers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (user && user.role === 'user') {
             setIsLoading(true);
-            profileRepository.getMyTrainer(user.id)
-                .then(setTrainer)
+            profileRepository.getMyTrainers(user.id)
+                .then(setTrainers)
                 .catch(e => console.error(e))
                 .finally(() => setIsLoading(false));
         } else {
@@ -24,5 +24,5 @@ export const useMyTrainer = () => {
         }
     }, [user]);
 
-    return { trainer, isLoading };
+    return { trainers, isLoading };
 };
