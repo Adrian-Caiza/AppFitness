@@ -32,39 +32,36 @@ export class SupabaseAuthRepository implements AuthRepository {
      * REGISTRO: Crea el usuario en `auth.users` y LUEGO crea su perfil en `public.profiles`.
      */
     async signUp(params: SignUpParams): Promise<{ user: User | null; error: Error | null }> {
-        // 1. Crear el usuario en Supabase Auth
+
+        // 1. Llamar a signUp pasando el rol y nombre como metadata
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: params.email,
             password: params.password,
+            options: {
+                data: {
+                    full_name: params.full_name,
+                    role: params.role
+                }
+            }
         });
 
         if (authError || !authData.user) {
             return { user: null, error: authError };
         }
 
-        // 2. Crear el perfil en la tabla 'profiles'
-        // ¡ESTO ES CRUCIAL! Tu RLS se basa en esto.
-        const { error: profileError } = await supabase.from('profiles').insert({
-            id: authData.user.id, // Vincula con el usuario de auth
-            full_name: params.full_name,
-            role: params.role,
-        });
+        // 2. ¡Ya no insertamos en 'profiles' desde aquí! El trigger lo hará.
 
-        if (profileError) {
-            // Opcional: Deberíamos borrar el usuario de auth si el perfil falla (rollback)
-            console.error('Error creating profile:', profileError.message);
-            return { user: null, error: new Error('Failed to create user profile.') };
-        }
-
-        // 3. Devolver la entidad de Usuario completa
-        const newUser: User = {
+        // 3. Devolver el usuario (aún sin perfil, pero la alerta de "revisa tu email" se mostrará)
+        // El tipo 'User' aquí es solo parcial, ya que el perfil
+        // se está creando en la DB.
+        const partialUser: User = {
             id: authData.user.id,
             email: authData.user.email!,
-            full_name: params.full_name,
-            role: params.role,
+            full_name: params.full_name, // Lo tomamos de los params
+            role: params.role,          // Lo tomamos de los params
         };
 
-        return { user: newUser, error: null };
+        return { user: partialUser, error: null };
     }
 
     /**

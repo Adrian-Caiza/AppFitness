@@ -7,6 +7,7 @@ import { useProgreso } from '../../src/presentation/hooks/useProgreso';
 import * as ImagePicker from 'expo-image-picker';
 import { FileUpload } from '../../src/domain/repositories/EjercicioRepository';
 import { Progreso } from '../../src/domain/entities/Progreso';
+import * as FileSystem from 'expo-file-system/legacy';
 
 export default function MiPlanScreen() {
     const { plan, isLoading: planLoading } = useUserPlan();
@@ -55,9 +56,13 @@ export default function MiPlanScreen() {
 
         let photoFile: FileUpload | null = null;
         if (photoAsset) {
+            //  Leemos el archivo de la 'uri'
+            const base64 = await FileSystem.readAsStringAsync(photoAsset.uri, {
+                encoding: 'base64', // Usamos la cadena 'base64'
+            });
             photoFile = {
                 uri: photoAsset.uri,
-                base64: photoAsset.base64!,
+                base64: base64,
                 mimeType: photoAsset.mimeType || 'image/jpeg',
             };
         }

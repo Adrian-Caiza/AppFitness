@@ -1,3 +1,5 @@
+// app/rutina/[id].tsx
+
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Modal, TextInput, Button, Alert } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useRutinaDetalle } from '../../src/presentation/hooks/useRutinaDetalle';
@@ -50,7 +52,6 @@ export default function RutinaDetalleScreen() {
         <View style={styles.ejercicioContainer}>
             <Text style={styles.ejercicioTitle}>{item.ejercicios.name}</Text>
             <Text>Sets: {item.sets || 'N/A'} | Reps: {item.reps || 'N/A'} | Descanso: {item.rest_time_seconds || 'N/A'}s</Text>
-            {/* Aquí podrías añadir un botón de "Eliminar" */}
         </View>
     );
 
@@ -64,13 +65,16 @@ export default function RutinaDetalleScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header de la pantalla con el nombre de la rutina */}
+
+            {/* ¡ESTA LÍNEA CORRIGE EL TÍTULO! */}
             <Stack.Screen options={{ title: rutina.name, headerBackTitle: 'Rutinas' }} />
 
+            {/* ¡ESTE ES EL BOTÓN QUE TE FALTA! */}
             <Button title="Añadir Ejercicio" onPress={() => setModalVisible(true)} />
 
             {/* Lista de ejercicios en la rutina */}
-            <FlatList
+            <View style={{ flex: 1 }}>
+                <FlatList
                 data={rutina.rutina_ejercicios}
                 renderItem={renderEjercicioEnRutina}
                 keyExtractor={(item) => item.id}
@@ -78,7 +82,8 @@ export default function RutinaDetalleScreen() {
                 refreshing={isLoading}
                 ListHeaderComponent={<Text style={styles.title}>{rutina.description}</Text>}
                 ListEmptyComponent={<Text style={styles.emptyText}>Esta rutina aún no tiene ejercicios.</Text>}
-            />
+                />
+            </View>
 
             {/* Modal para añadir ejercicio */}
             <Modal
