@@ -4,6 +4,7 @@ import { useTrainerData } from '../../src/presentation/hooks/useTrainerData';
 import { Rutina } from '../../src/domain/entities/Rutina';
 import { Link } from 'expo-router';
 import { Pressable } from 'react-native';
+import { Colors } from '@/constants/theme';
 
 export default function CrearRutinaScreen() {
     const { rutinas, isLoading, createRutina, refreshRutinas } = useTrainerData();
@@ -73,10 +74,31 @@ export default function CrearRutinaScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 10 },
-    formContainer: { marginBottom: 20, padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 8 },
+    formContainer: {
+        marginBottom: 20,
+        padding: 15,
+        borderRadius: 10,
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 3,
+    },
     title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-    input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 5 },
-    itemContainer: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
+    input: {
+        borderBottomWidth: 1, // Underline
+        borderColor: '#D1D1D6', // Color de borde
+        padding: 10,
+        marginBottom: 10,
+        fontSize: 16,
+    },
+    itemContainer: {
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+        backgroundColor: 'white' // Fondo de item
+    },
     itemTitle: { fontSize: 16, fontWeight: 'bold' },
-    verMas: { color: 'blue', marginTop: 5, textAlign: 'right' },
+    verMas: { color: Colors.light.primary, marginTop: 5, textAlign: 'right', fontWeight: '500' },
 });

@@ -1,41 +1,73 @@
-import { View, TextInput, Button, Alert } from 'react-native';
+// app/(auth)/login.tsx
+import { View, TextInput, Button, Alert, Text, Pressable } from 'react-native';
 import { useState } from 'react';
 import { useAuth } from '../../src/presentation/context/AuthContext';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Colors } from '@/constants/theme';
+import { authStyles } from '../../src/constants/AuthStyles'; // Importa los estilos
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { signIn } = useAuth();
+    const router = useRouter();
+
+    // Obtener colores del tema
+    const containerBg = useThemeColor({}, 'background');
+    const inputBorder = useThemeColor({}, 'border');
+    const inputText = useThemeColor({}, 'text');
+    const placeholderText = useThemeColor({}, 'muted');
+    const primaryColor = useThemeColor({}, 'primary');
+    const linkColor = useThemeColor({}, 'link');
 
     const handleLogin = async () => {
-        const { error } = await signIn({ email, password });
-        if (error) {
-            Alert.alert('Error', error.message);
+        try {
+            const { error } = await signIn({ email, password });
+            if (error) {
+                Alert.alert('Error', error.message);
+            }
+            // El _layout se encargará de redirigir
+        } catch (e: any) {
+            Alert.alert('Error', e.message);
         }
-        // Si es exitoso, el listener del _layout nos redirigirá
     };
 
     return (
-        <View style={{ padding: 20, justifyContent: 'center', flex: 1 }}>
+        <ThemedView style={[authStyles.container, { backgroundColor: containerBg }]}>
+            <ThemedText style={authStyles.title}> FitnessApp </ThemedText>
+
             <TextInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
-                style={{ borderWidth: 1, padding: 10, marginBottom: 10 }}
+                keyboardType="email-address"
+                placeholderTextColor={placeholderText}
+                style={[authStyles.input, { borderBottomColor: inputBorder, color: inputText }]}
             />
             <TextInput
                 placeholder="Contraseña"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                style={{ borderWidth: 1, padding: 10, marginBottom: 20 }}
+                placeholderTextColor={placeholderText}
+                style={[authStyles.input, { borderBottomColor: inputBorder, color: inputText }]}
             />
-            <Button title="Iniciar Sesión" onPress={handleLogin} />
-            <Link href="/(auth)/register" style={{ textAlign: 'center', marginTop: 20 }}>
-                ¿No tienes cuenta? Regístrate
+
+            <Pressable style={[authStyles.button, { backgroundColor: primaryColor }]} onPress={handleLogin}>
+                <Text style={authStyles.buttonText}>Iniciar Sesión</Text>
+            </Pressable>
+
+            <Link href="/(auth)/register" asChild>
+                <Pressable>
+                    <ThemedText style={[authStyles.linkText, { color: linkColor }]}>
+                        ¿No tienes cuenta? Regístrate
+                    </ThemedText>
+                </Pressable>
             </Link>
-        </View>
+        </ThemedView>
     );
 }

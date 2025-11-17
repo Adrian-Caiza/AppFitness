@@ -95,16 +95,24 @@ export default function ClientsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
+    container: { flex: 1, padding: 10 },
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     emptyText: { textAlign: 'center', marginTop: 20, color: '#999' },
     itemContainer: {
         padding: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderRadius: 10,
+        backgroundColor: 'white', // Usará el color de 'card' del tema
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 10,
+        // Sombra para iOS
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        // Sombra para Android
+        elevation: 3,
     },
     itemTitle: { fontSize: 16, fontWeight: 'bold' },
     // Estilos del Modal

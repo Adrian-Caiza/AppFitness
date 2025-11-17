@@ -5,25 +5,37 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#007AFF'; // Un azul vibrante, como en la imagen
+const tintColorDark = '#FFFFFF';
 
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#F0F2F5', // Un fondo gris muy claro
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    primary: tintColorLight,
+    card: '#FFFFFF', // Las tarjetas serán blancas
+    border: '#D1D1D6', // Para los underlines de los inputs
+    muted: '#AAAAAA', // Texto silenciado
+    activeGreen: '#34C759', // Verde para el toggle
+    link: tintColorLight,
   },
   dark: {
     text: '#ECEDEE',
-    background: '#151718',
+    background: '#121212', // Un fondo oscuro profundo, como en la imagen
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    primary: tintColorLight, // El azul resalta bien en fondos oscuros
+    card: '#1C1C1E', // Un gris oscuro para las tarjetas
+    border: '#3A3A3C', // Para los underlines de los inputs
+    muted: '#8E8E93', // Texto silenciado
+    activeGreen: '#32D74B',
+    link: tintColorLight,
   },
 };
 

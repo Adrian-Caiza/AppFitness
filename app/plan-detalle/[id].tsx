@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     planTitle: { fontSize: 22, fontWeight: 'bold', marginVertical: 15, textAlign: 'center' },
     ejercicioContainer: {
         padding: 15,
-        borderWidth: 1,
+        borderWidth: 1, // Dejamos este borde para separar ejercicios
         borderColor: '#ddd',
         borderRadius: 8,
         marginHorizontal: 10,
@@ -196,7 +196,14 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-    input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 5, width: '100%' },
+    input: { // ¡Estilo de input actualizado!
+        borderBottomWidth: 1,
+        borderColor: '#D1D1D6',
+        padding: 10,
+        marginBottom: 10,
+        width: '100%',
+        fontSize: 16,
+    },
     photoPreview: { width: 100, height: 100, marginVertical: 10, alignSelf: 'center' },
     historialItem: {
         padding: 10,

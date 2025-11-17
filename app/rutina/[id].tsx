@@ -41,7 +41,7 @@ export default function RutinaDetalleScreen() {
             setSets('');
             setReps('');
             setRest('');
-        } catch (e) {}
+        } catch (e) { }
     };
 
     const renderEjercicioEnRutina = ({ item }: { item: EjercicioEnRutina }) => (
@@ -65,9 +65,9 @@ export default function RutinaDetalleScreen() {
         <>
             {/* ✅ CORREGIDO: Stack.Screen debe ir arriba del layout */}
             <Stack.Screen
-                options={{ 
+                options={{
                     title: rutina.name,
-                    headerBackTitle: 'Rutinas' 
+                    headerBackTitle: 'Rutinas'
                 }}
             />
 
@@ -158,5 +158,12 @@ const styles = StyleSheet.create({
         marginTop: '50%',
     },
     modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15 },
-    input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 5, width: '100%' },
+    input: { // ¡Estilo de input actualizado!
+        borderBottomWidth: 1,
+        borderColor: '#D1D1D6',
+        padding: 10,
+        marginBottom: 10,
+        width: '100%',
+        fontSize: 16,
+    },
 });
