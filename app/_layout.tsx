@@ -32,6 +32,7 @@ function RootLayoutNav() {
             {/* Definimos las pantallas que se pueden "empujar" encima */}
             <Stack.Screen name="rutina/[id]" />
             <Stack.Screen name="chat/[id]" />
+            <Stack.Screen name="plan-detalle/[id]" />
         </Stack>
     );
 }

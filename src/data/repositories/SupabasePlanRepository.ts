@@ -1,62 +1,77 @@
+// src/data/repositories/SupabasePlanRepository.ts
+
 import { PlanRepository, AssignPlanParams } from '../../domain/repositories/PlanRepository';
-import { PlanCompleto } from '../../domain/types/types';
+import { PlanCompleto, PlanAsignado } from '../../domain/types/types';
 import { PlanEntrenamiento } from '../../domain/entities/PlanEntrenamiento';
 import { supabase } from '../../lib/supabase';
 
 export class SupabasePlanRepository implements PlanRepository {
 
-    async getMyPlan(userId: string): Promise<PlanCompleto | null> {
-        // Esta es una consulta compleja que trae todo lo que 'mi-plan.tsx' necesita
-        // 1. Trae el 'plan_entrenamiento' del usuario
-        // 2. Hace "JOIN" con la 'rutina' de ese plan
-        // 3. Hace "JOIN" con 'rutina_ejercicios' de esa rutina
-        // 4. Hace "JOIN" con 'ejercicios' de esa rutina_ejercicios
-        // ¡Todo en una sola consulta gracias a las relaciones de Supabase!
+    // ¡CAMBIADO! Ahora se llama getMyPlans y devuelve un array
+    async getMyPlans(userId: string): Promise<PlanAsignado[]> {
+
+        const { data, error } = await supabase
+            .from('planes_entrenamiento')
+            // ¡INICIO DE LA CORRECCIÓN!
+            .select(`
+        id,
+        rutinas!inner ( name ),
+        profiles:trainer_id!inner ( full_name ) 
+        `)
+            // ¡FIN DE LA CORRECCIÓN!
+            .eq('user_id', userId)
+            .order('start_date', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching plans list:', error.message);
+            throw error;
+        }
+
+        // Ahora 'data' SÍ coincide con la interfaz PlanAsignado
+        return data as unknown as PlanAsignado[];
+    }
+
+    // ¡NUEVA FUNCIÓN! Esta es tu consulta ANTERIOR, pero más segura
+    async getPlanDetalle(planId: string, userId: string): Promise<PlanCompleto | null> {
 
         const { data, error } = await supabase
             .from('planes_entrenamiento')
             .select(`
+        *,
+        rutinas (
+          *,
+          rutina_ejercicios (
             *,
-            rutinas (
-            *,
-            rutina_ejercicios (
-                *,
-                ejercicios (*)
-            )
-            )
-        `)
-            .eq('user_id', userId)
-            .maybeSingle(); // Puede que el usuario no tenga un plan (null)
+            ejercicios (*)
+          )
+        )
+      `)
+            .eq('id', planId) // Busca el ID del plan específico
+            .eq('user_id', userId) // ¡Seguridad! Asegura que el usuario sea el dueño
+            .single();
 
         if (error) {
-            console.error('Error fetching plan:', error.message);
-            // Tu RLS "Users can see their own training plans" te protege aquí
+            console.error('Error fetching plan detail:', error.message);
             throw error;
         }
 
-        // El tipado de Supabase es genérico, lo forzamos a nuestro tipo
         return data as PlanCompleto | null;
     }
 
+    // Esta función se queda igual
     async assignPlan(params: AssignPlanParams): Promise<PlanEntrenamiento> {
-    // NOTA: Si un usuario ya tiene un plan, esto asignará uno nuevo.
-    // En una app real, quizás querrías usar .upsert() para reemplazar
-    // el plan existente si 'user_id' fuera una clave única.
-    // Pero según tu schema, un usuario puede tener múltiples planes
-    // (lo cual está bien, podemos mostrar el más reciente).
-    
-    const { data, error } = await supabase
-        .from('planes_entrenamiento')
-        .insert(params)
-        .select()
-        .single();
+        // ... (código existente sin cambios) ...
+        const { data, error } = await supabase
+            .from('planes_entrenamiento')
+            .insert(params)
+            .select()
+            .single();
 
-    if (error) {
-        console.error('Error assigning plan:', error.message);
-        // ¡Tu RLS del Paso 0 protege esta inserción!
-        throw error;
-    }
-    
-    return data;
+        if (error) {
+            console.error('Error assigning plan:', error.message);
+            throw error;
+        }
+
+        return data;
     }
 }

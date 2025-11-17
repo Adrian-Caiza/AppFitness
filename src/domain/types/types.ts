@@ -17,3 +17,14 @@ export interface RutinaCompleta extends Rutina {
 export interface PlanCompleto extends PlanEntrenamiento {
     rutinas: RutinaCompleta; // La rutina completa asignada
 }
+
+// Para la lista de planes, solo necesitamos los nombres.
+export interface PlanAsignado {
+    id: string; // ID del plan
+    rutinas: {
+        name: string; // Nombre de la rutina
+    };
+    profiles: {
+        full_name: string; // Nombre del entrenador
+    };
+}
